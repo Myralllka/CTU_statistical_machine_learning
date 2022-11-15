@@ -20,6 +20,16 @@ def plot_convergence(run_info):
     plt.legend()
 
 
+def plot_mean_w(layers, run_info):
+    for layer in layers:
+        if layer.has_params():
+            plt.plot(run_info[layer.name], label=layer.name)
+
+    plt.xlabel('epoch')
+    plt.ylabel('mean weight amplitude')
+    plt.legend()
+
+
 def plot_test_accuracy_comparison(run_info_dict):
     keys = sorted(run_info_dict.keys())
     for key in keys:
@@ -77,10 +87,12 @@ def experiment_spirals():
         run_info = train(net, X_train, T_train, batch_size=len(X_train), alpha=alpha, X_test=X_test, T_test=T_test,
                          n_epochs=1000, verbose=True)
         run_info_dict[name] = run_info
+        plot_2D_classification(X_train, T_train, net)
+        plt.show()
         # plot_spirals(X_train, T_train, net)
         # plt.show()
-        # plot_convergence(run_info)
-        # plt.show()
+        plot_convergence(run_info)
+        plt.show()
     plot_test_accuracy_comparison(run_info_dict)
     plt.show()
     # plt.savefig('spiral.pdf') # you can instead save figure to file
@@ -116,6 +128,8 @@ def experiment_MNIST_unstable():
 
     run_info = train(net, X_train, T_train, batch_size=3000, alpha=1e-1,
                      X_test=X_test, T_test=T_test, n_epochs=10, verbose=True)
+    plot_convergence(run_info)
+    plt.show()
 
 
 def experiment_MNIST():
@@ -148,18 +162,21 @@ def experiment_MNIST():
 
     run_info = train(net, X_train, T_train, batch_size=3000, alpha=1e-1, X_test=X_test, T_test=T_test, n_epochs=100,
                      verbose=True)
-    # plot_convergence(run_info)
-    # plt.show()
+    plot_convergence(run_info)
+    plot_mean_w(net.layers, run_info)
+    # plt.savefig('MNIST_w.pdf', format='pdf')
+    plt.show()
+    plt.show()
 
     with open('MNIST_run_info.p', 'wb') as f:
         pickle.dump(run_info, f)
 
 
 if __name__ == '__main__':
-    experiment_XOR()
+    # experiment_XOR()
 
     # experiment_spirals()
 
     # experiment_MNIST_unstable()
 
-    # experiment_MNIST()
+    experiment_MNIST()

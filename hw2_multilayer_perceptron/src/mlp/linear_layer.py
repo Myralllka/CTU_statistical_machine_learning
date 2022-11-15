@@ -5,12 +5,14 @@ class LinearLayer(object):
     def __init__(self, n_inputs, n_units, rng, name):
         """
         Linear (dense, fully-connected) layer.
-        :param n_inputs:
-        :param n_units:
+        :param n_inputs: Number of inputs, N
+        :param n_units: Number of outputs, K
         :param rng: random number generator used for initialization
         :param name:
         """
         super(LinearLayer, self).__init__()
+        self.b = None
+        self.W = None
         self.n_inputs = n_inputs
         self.n_units = n_units
         self.rng = rng
@@ -26,7 +28,12 @@ class LinearLayer(object):
         :param X: layer inputs, shape (n_samples, n_inputs)
         :return: layer output, shape (n_samples, n_units)
         """
-        pass  # TODO IMPLEMENT
+        assert X.shape[1] == self.n_inputs, "{}: wrong forward input shape".format(self.name)
+        res = (X @ self.W) + self.b
+
+        if np.isnan(res.sum()):
+            print('Found Nan in {} forward'.format(self.name))
+        return res
 
     def delta(self, Y, delta_next):
         """
@@ -36,7 +43,11 @@ class LinearLayer(object):
         :param delta_next: delta vector backpropagated from the following layer, shape (n_samples, n_units)
         :return: delta vector from this layer, shape (n_samples, n_inputs)
         """
-        pass  # TODO IMPLEMENT
+        assert Y.shape == delta_next.shape, "{}: wrong delta input shape".format(self.name)
+        res = delta_next @ self.W.T
+        if np.isnan(res.sum()):
+            print('Found Nan in {} delta'.format(self.name))
+        return res
 
     def grad(self, X, delta_next):
         """
@@ -46,7 +57,20 @@ class LinearLayer(object):
         :return: a list of two arrays [dW, db] corresponding to gradients of loss w.r.t. weights and biases, the shapes
         of dW and db are the same as the shapes of the actual parameters (self.W, self.b)
         """
-        pass  # TODO IMPLEMENT
+        assert X.shape[1] == self.n_inputs, "{}: wrong delta X input shape".format(self.name)
+        assert delta_next.shape[1] == self.n_units, "{}: wrong delta delta_next input shape".format(self.name)
+        sample_size = X.shape[0]
+
+        dW = X.T @ delta_next
+        db = np.sum(delta_next, 0)
+
+        if np.isnan(dW.sum()):
+            print('Found Nan in {} grad dW'.format(self.name))
+        if db is None:
+            print('Parameter b in {} grad is none'.format(self.name))
+
+        return [dW / sample_size, db / sample_size]
+
 
     def initialize(self):
         """
