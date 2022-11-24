@@ -28,6 +28,12 @@ def train(net, X_train, T_train, batch_size=1, n_epochs=2, alpha=0.1, X_test=Non
     assert T_train.shape[0] == n_samples
     assert batch_size <= n_samples
     run_info = defaultdict(list)
+    init_w = defaultdict(list)
+    mean_w = defaultdict(list)
+
+    for layer in net.layers:
+        if layer.has_params():
+            init_w[layer.name] = abs(layer.W).sum() / (layer.n_units * layer.n_inputs)
 
     def process_info(epoch):
         loss_test, acc_test = np.nan, np.nan
@@ -61,7 +67,16 @@ def train(net, X_train, T_train, batch_size=1, n_epochs=2, alpha=0.1, X_test=Non
                     layer.update_params(dtheta)
 
             offset += batch_size
+
+        for layer in net.layers:
+            if layer.has_params():
+                w_list = mean_w[layer.name]
+                w_list.append((abs(layer.W).sum() / (layer.n_units * layer.n_inputs)) / init_w[layer.name])
+                mean_w[layer.name] = w_list
         if verbose:
             print()
         process_info(epoch)
+    for layer in net.layers:
+        if layer.has_params():
+            run_info[layer.name] = mean_w[layer.name]
     return run_info

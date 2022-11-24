@@ -35,9 +35,6 @@ class SoftmaxLayer(object):
         assert Y.shape == delta_next.shape, "{}: wrong delta input shape".format(self.name)
         n_samples, n_units = Y.shape
         p = Y[0].shape
-        # if np.isnan(res.sum()):
-        #     print('Found Nan in {} delta'.format(self.name))
-        # return res
 
         identity = np.array([np.eye(n_units) * Y[i] for i in range(n_samples)])
         reshaped = np.array([np.reshape(Y[i], (-1, 1)) @ np.reshape(Y[i], (1, -1)) for i in range(n_samples)])

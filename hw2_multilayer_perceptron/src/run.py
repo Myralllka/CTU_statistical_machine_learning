@@ -1,6 +1,7 @@
 import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from mlp.datasets import load_XOR, load_spirals, load_MNIST, plot_2D_classification
 from mlp.linear_layer import LinearLayer
@@ -11,6 +12,8 @@ from mlp.train import train
 
 from mlp.mlp import MLP
 
+
+mpl.use('Qt5Agg')
 
 def plot_convergence(run_info):
     plt.plot(run_info['acc_train'], label='train')
@@ -163,9 +166,9 @@ def experiment_MNIST():
     run_info = train(net, X_train, T_train, batch_size=3000, alpha=1e-1, X_test=X_test, T_test=T_test, n_epochs=100,
                      verbose=True)
     plot_convergence(run_info)
+    plt.show()
     plot_mean_w(net.layers, run_info)
     # plt.savefig('MNIST_w.pdf', format='pdf')
-    plt.show()
     plt.show()
 
     with open('MNIST_run_info.p', 'wb') as f:
