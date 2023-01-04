@@ -1,4 +1,4 @@
 *.npy
 .idea
 __pycache__
-.pdf
+*.pdf
