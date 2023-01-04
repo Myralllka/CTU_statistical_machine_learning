@@ -84,8 +84,8 @@ def posterior_pose_prob(images: np.array, ets: tuple, shape: np.array, pis: np.a
     :return:
     """
     # eta(Trs)
-    shape = copy.deepcopy(shape) * ets[1]
-    shape = np.logical_not(shape) * ets[0]
+    shape = copy.deepcopy(shape) * ets[0]
+    shape = np.logical_not(shape) * ets[1]
     # rotate images
     assert np.all(np.abs(np.rot90(shape, 2) - scipy.ndimage.rotate(shape, angle=180)) < 10e-5), "error in rotation"
     s = np.array([shape,
@@ -99,6 +99,8 @@ def posterior_pose_prob(images: np.array, ets: tuple, shape: np.array, pis: np.a
     return res
 
 
+cnt = 0
+
 if __name__ == "__main__":
     # data - batches * height * width
     data = np.load("images.npy")
@@ -107,11 +109,6 @@ if __name__ == "__main__":
     avg_img = data.sum(axis=0) / data.shape[0]
     init_etas = tuple((-0.1, 0.1))
     init_ps = np.array([0.25, 0.25, 0.25, 0.25])
-    # s, etas = shape_mle(avg_img, init_etas)
-    # plt.imshow(s)
-    # plt.show()
-    # while True:
-    #     pass
 
     # data4 | <R B W H>
     data4 = np.array([data,
@@ -122,8 +119,7 @@ if __name__ == "__main__":
     s = copy.deepcopy(init_s)
     ps = copy.deepcopy(init_ps)
     s_prev = copy.deepcopy(s)
-    cnt = 0
-    # for i in range(11):
+
     while True:
         # axr | <R B 1 1>
         axr = posterior_pose_prob(data, ets, s, ps)
@@ -145,5 +141,7 @@ if __name__ == "__main__":
         s_prev = copy.deepcopy(s)
         cnt += 1
     print(cnt)
+    print("etas: {}".format(ets))
+    print("Pis: {}".format(ps))
     plt.imshow(s)
     plt.show()
